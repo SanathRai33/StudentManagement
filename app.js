@@ -1,6 +1,8 @@
 require("dotenv").config();
+
 const express = require("express");
-const studentRoutes = require("./routers/studentRoutes");
+const sequelize = require("./utils/db-connection");
+const studentRoutes = require("./routes/studentsRoutes");
 
 const app = express();
 
@@ -12,8 +14,17 @@ app.get("/", (req, res) => {
 
 app.use("/students", studentRoutes);
 
-const PORT = 3000;
+sequelize
+  .sync({ force: false })
+  .then(() => {
+    console.log("Students table created");
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    const PORT = process.env.PORT || 3000;
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });
