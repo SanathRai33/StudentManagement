@@ -1,129 +1,67 @@
-const db = require("../utils/db-connection");
+const studentModel = require("../models/studentModel");
 
+const createStudent = async (req, res) => {
+  const { name, email } = req.body;
 
-const createStudent = (req, res) => {
+  try {
+    const student = await studentModel.create({
+      name: name,
+      email: email,
+    });
 
-  const { name, email, age } = req.body;
-
-  const query = `
-    INSERT INTO students (name, email, age)
-    VALUES (?, ?, ?)
-  `;
-
-  db.execute(query, [name, email, age], (err, result) => {
-
-    if (err) {
-      console.log("Insert Error:", err);
-      return res.status(500).send("Error inserting student");
-    }
-
-    console.log("Student Inserted");
-
-    res.send("Student added successfully");
-  });
-
+    res.status(201).json({
+      message: "Student created successfully",
+      student: student,
+    });
+  } catch (error) {
+    console.error("Create Error:", error);
+    res.status(500).json({ error: "Error creating student" });
+  }
 };
 
+const updateStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
 
-const getStudents = (req, res) => {
+    const student = await studentModel.findByPk(id);
 
-  const query = `SELECT * FROM students`;
-
-  db.execute(query, (err, result) => {
-
-    if (err) {
-      console.log("Fetch Error:", err);
-      return res.status(500).send("Error fetching students");
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
     }
 
-    res.json(result);
-  });
+    student.name = name || student.name;
+    await student.save();
 
+    res.json({
+      message: "Student updated successfully",
+      student: student,
+    });
+  } catch (error) {
+    console.error("Update Error:", error);
+    res.status(500).json({ error: "Error updating student" });
+  }
 };
-
-
-const getStudentById = (req, res) => {
-
-  const { id } = req.params;
-
-  const query = `
-    SELECT * FROM students
-    WHERE id = ?
-  `;
-
-  db.execute(query, [id], (err, result) => {
-
-    if (err) {
-      console.log(err);
-      return res.status(500).send("Error fetching student");
-    }
-
-    if (result.length === 0) {
-      return res.status(404).send("Student not found");
-    }
-
-    res.json(result[0]);
-  });
-
-};
-
-
-const updateStudent = (req, res) => {
-
-  const { id } = req.params;
-
-  const { name, email, age } = req.body;
-
-  const query = `
-    UPDATE students
-    SET name = ?, email = ?, age = ?
-    WHERE id = ?
-  `;
-
-  db.execute(query, [name, email, age, id], (err, result) => {
-
-    if (err) {
-      console.log("Update Error:", err);
-      return res.status(500).send("Error updating student");
-    }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).send("Student not found");
-    }
-
-    console.log("Student Updated");
-
-    res.send("Student updated successfully");
-  });
-
-};
-
 
 const deleteStudent = (req, res) => {
+  try {
+    const { id } = req.params;
 
-  const { id } = req.params;
+    const student = studentModel.destroy({
+      where: { id: id },
+    });
 
-  const query = `
-    DELETE FROM students
-    WHERE id = ?
-  `;
-
-  db.execute(query, [id], (err, result) => {
-
-    if (err) {
-      console.log("Delete Error:", err);
-      return res.status(500).send("Error deleting student");
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
     }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).send("Student not found");
-    }
-
-    console.log("Student Deleted");
-
-    res.send("Student deleted successfully");
-  });
-
+    res.json({
+      message: "Student deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Error:", error);
+    res.status(500).json({ error: "Error deleting student" });
+  }
 };
 
 
@@ -132,5 +70,5 @@ module.exports = {
   getStudents,
   getStudentById,
   updateStudent,
-  deleteStudent
+  deleteStudent,
 };
