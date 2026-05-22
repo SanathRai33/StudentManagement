@@ -19,6 +19,30 @@ const createStudent = async (req, res) => {
   }
 };
 
+const getStudents = async (req, res) => {
+  try {
+    const students = await studentModel.findAll();
+    res.json(students);
+  } catch (error) {
+    console.error("Get All Error:", error);
+    res.status(500).json({ error: "Error fetching students" });
+  }
+};
+
+const getStudentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await studentModel.findByPk(id);
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+    res.json(student);
+  } catch (error) {
+    console.error("Get By ID Error:", error);
+    res.status(500).json({ error: "Error fetching student" });
+  }
+};
+
 const updateStudent = async (req, res) => {
   try {
     const { id } = req.params;
