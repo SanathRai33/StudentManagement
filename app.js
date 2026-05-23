@@ -1,28 +1,25 @@
 require("dotenv").config();
 
 const express = require("express");
-const sequelize = require("./utils/db-connection");
 const studentRoutes = require("./routes/studentRoutes");
+const coursesRoutes = require("./routes/coursesRoutes");
 
-require("./models/students");
-require("./models/departments");
+const { sequelize } = require("./models");
 
 const app = express();
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Student Management API");
-});
-
 app.use("/students", studentRoutes);
+app.use("/courses", coursesRoutes);
 
-sequelize.sync({ force: false })
+sequelize
+  .sync()
   .then(() => {
-    console.log("Tables created successfully");
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    console.log("Database synced successfully");
+
+    app.listen(3000, () => {
+      console.log("Server running on port 3000");
     });
   })
   .catch((err) => {

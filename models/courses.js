@@ -1,23 +1,17 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../utils/db-connection");
 
-const Student = sequelize.define("Student", {
+const Course = sequelize.define("Course", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
 
-  name: {
+  courseName: {
     type: DataTypes.STRING,
     allowNull: false,
-  },
-
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
   },
 });
 
-module.exports = Student;
+module.exports = Course;
