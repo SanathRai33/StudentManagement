@@ -1,98 +1,70 @@
-const studentModel = require("../models/studentModel");
+const Students = require("../models/students");
+const Departments = require("../models/departments");
+
 
 const createStudent = async (req, res) => {
-  const { name, email } = req.body;
 
   try {
-    const student = await studentModel.create({
-      name: name,
-      email: email,
+
+    const {
+      name,
+      email,
+      age,
+      departmentName
+    } = req.body;
+
+
+    const department = await Departments.create({
+      departmentName
     });
 
-    res.status(201).json({
-      message: "Student created successfully",
-      student: student,
+    const student = await Students.create({
+
+      name,
+      email,
+      age,
+
+      DepartmentId: department.id
+
     });
+
+    res.status(201).json(student);
+
   } catch (error) {
-    console.error("Create Error:", error);
-    res.status(500).json({ error: "Error creating student" });
+
+    console.log(error);
+
+    res.status(500).send("Error creating student");
+
   }
+
 };
+
 
 const getStudents = async (req, res) => {
+
   try {
-    const students = await studentModel.findAll();
+
+    const students = await Students.findAll({
+
+      include: Departments
+
+    });
+
     res.json(students);
+
   } catch (error) {
-    console.error("Get All Error:", error);
-    res.status(500).json({ error: "Error fetching students" });
+
+    console.log(error);
+
+    res.status(500).send("Error fetching students");
+
   }
-};
 
-const getStudentById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const student = await studentModel.findByPk(id);
-    if (!student) {
-      return res.status(404).json({ error: "Student not found" });
-    }
-    res.json(student);
-  } catch (error) {
-    console.error("Get By ID Error:", error);
-    res.status(500).json({ error: "Error fetching student" });
-  }
-};
-
-const updateStudent = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name } = req.body;
-
-    const student = await studentModel.findByPk(id);
-
-    if (!student) {
-      return res.status(404).json({ error: "Student not found" });
-    }
-
-    student.name = name || student.name;
-    await student.save();
-
-    res.json({
-      message: "Student updated successfully",
-      student: student,
-    });
-  } catch (error) {
-    console.error("Update Error:", error);
-    res.status(500).json({ error: "Error updating student" });
-  }
-};
-
-const deleteStudent = (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const student = studentModel.destroy({
-      where: { id: id },
-    });
-
-    if (!student) {
-      return res.status(404).json({ error: "Student not found" });
-    }
-
-    res.json({
-      message: "Student deleted successfully",
-    });
-  } catch (error) {
-    console.error("Delete Error:", error);
-    res.status(500).json({ error: "Error deleting student" });
-  }
 };
 
 
 module.exports = {
   createStudent,
-  getStudents,
-  getStudentById,
-  updateStudent,
-  deleteStudent,
+  getStudents
 };

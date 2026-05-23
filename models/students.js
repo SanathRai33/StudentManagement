@@ -2,13 +2,14 @@ const { DataTypes } = require("sequelize");
 
 const sequelize = require("../utils/db-connection");
 
+const Departments = require("./departments");
+
 const Students = sequelize.define("Students", {
 
   id: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
     autoIncrement: true,
-    allowNull: false
+    primaryKey: true
   },
 
   name: {
@@ -28,5 +29,10 @@ const Students = sequelize.define("Students", {
   }
 
 });
+
+Departments.hasMany(Students);
+
+Students.belongsTo(Departments);
+
 
 module.exports = Students;

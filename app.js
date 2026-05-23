@@ -2,25 +2,25 @@ require("dotenv").config();
 
 const express = require("express");
 const sequelize = require("./utils/db-connection");
-const studentRoutes = require("./routes/studentsRoutes");
+const studentRoutes = require("./routes/studentRoutes");
+
+require("./models/students");
+require("./models/departments");
 
 const app = express();
 
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.send("Student Management API");
 });
 
 app.use("/students", studentRoutes);
 
-sequelize
-  .sync({ force: false })
+sequelize.sync({ force: false })
   .then(() => {
-    console.log("Students table created");
-
+    console.log("Tables created successfully");
     const PORT = process.env.PORT || 3000;
-
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
